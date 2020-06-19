@@ -1,0 +1,17 @@
+diff -r 6132f62c131d src/jdk.incubator.jpackage/unix/native/common/UnixFileUtils.cpp
+--- a/src/jdk.incubator.jpackage/unix/native/common/UnixFileUtils.cpp	Fri Jun 19 11:32:51 2020 +0200
++++ b/src/jdk.incubator.jpackage/unix/native/common/UnixFileUtils.cpp	Fri Jun 19 14:48:10 2020 +0300
+@@ -56,7 +56,12 @@
+     }
+ 
+     if (isDirSeparator(path[0])) {
+-        return path;
++        char buffer[PATH_MAX] = { 0 };
++        ssize_t result = readlink(path.c_str(), buffer, sizeof(buffer));
++        if (result == -1) {
++            JP_THROW(tstrings::any() << "readlink() failed");
++        }
++        return tstring(buffer);
+     }
+ 
+     return mkpath() << toAbsolutePath("") << path;
